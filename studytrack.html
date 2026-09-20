@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyTrack — Personal Study Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--primary:#5b5cf0;--primary2:#7c3aed;--green:#16a34a;--red:#ef4444;--amber:#f59e0b;--shadow:0 12px 35px rgba(17,24,39,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{display:flex;min-height:100vh}.sidebar{width:245px;background:#101426;color:#fff;padding:22px 15px;position:fixed;inset:0 auto 0 0;z-index:20}.brand{font-weight:800;font-size:21px;padding:8px 12px 25px}.brand span{color:#8b8df8}.nav button{width:100%;text-align:left;background:transparent;color:#c8ccda;padding:12px 13px;border-radius:12px;margin:3px 0}.nav button.active,.nav button:hover{background:#242a43;color:#fff}.nav small{display:block;color:#7f879d;margin:20px 12px 6px}.main{margin-left:245px;width:calc(100% - 245px);padding:28px;max-width:1500px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.top h1{margin:0;font-size:28px}.date{color:var(--muted);margin-top:4px}.btn{padding:11px 15px;border-radius:11px;background:var(--primary);color:#fff;font-weight:700}.btn.secondary{background:#eef0ff;color:#4b4dd9}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,1fr)}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.stat-label{font-size:13px;color:var(--muted)}.stat{font-size:27px;font-weight:800;margin:7px 0}.progress{height:8px;background:#edf0f5;border-radius:99px;overflow:hidden}.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary2));border-radius:99px}.two{grid-template-columns:1.35fr .85fr;margin-top:16px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.section-title h2{font-size:17px;margin:0}.timer{text-align:center;padding:28px 10px}.timer .clock{font-size:58px;font-weight:800;letter-spacing:2px}.timer select{padding:11px;border:1px solid var(--line);border-radius:10px;margin:10px 4px}.task{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.task:last-child{border:0}.task input{width:19px;height:19px}.task-main{flex:1}.task-title{font-weight:650}.done{text-decoration:line-through;color:#9ca3af}.pill{font-size:11px;padding:5px 8px;border-radius:99px;background:#eef0ff;color:#4b4dd9}.pill.high{background:#fee2e2;color:#b91c1c}.pill.med{background:#fef3c7;color:#92400e}.pill.low{background:#dcfce7;color:#166534}.muted{color:var(--muted);font-size:13px}.form{display:grid;gap:11px}.form input,.form select,.form textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;outline:none;background:#fff}.form textarea{min-height:75px;resize:vertical}.report-grid{grid-template-columns:repeat(3,1fr)}.subject{padding:12px 0}.subject-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}.empty{text-align:center;color:var(--muted);padding:25px}.hidden{display:none!important}.mobile-nav{display:none}.danger{color:var(--red);background:none}.chapter{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.chapter select{margin-left:auto;padding:7px;border:1px solid var(--line);border-radius:8px}.toast{position:fixed;right:18px;bottom:18px;background:#111827;color:#fff;padding:12px 16px;border-radius:11px;display:none;z-index:50}@media(max-width:900px){.sidebar{display:none}.main{margin:0;width:100%;padding:18px 15px 80px}.stats{grid-template-columns:repeat(2,1fr)}.two,.report-grid{grid-template-columns:1fr}.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#101426;z-index:30;padding:8px;justify-content:space-around}.mobile-nav button{background:none;color:#c8ccda;font-size:11px}.mobile-nav button.active{color:#fff}.top h1{font-size:23px}.timer .clock{font-size:48px}}@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.card{padding:15px}.stat{font-size:22px}.top .btn{padding:9px 10px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">Study<span>Track</span> ✦</div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard">⌂ &nbsp; Dashboard</button>
+    <button data-page="timer">⏱ &nbsp; Study Timer</button>
+    <button data-page="tasks">✓ &nbsp; Today's Tasks</button>
+    <button data-page="schedule">◷ &nbsp; Schedule</button>
+    <button data-page="jee">◆ &nbsp; JEE Progress</button>
+    <small>ANALYTICS</small>
+    <button data-page="reports">▣ &nbsp; Reports</button>
+    <button data-page="analytics">◒ &nbsp; Analytics</button>
+  </nav>
+</aside>
+
+<main class="main">
+<section id="dashboard" class="page">
+  <div class="top"><div><h1>Good morning 👋</h1><div class="date" id="today"></div></div><button class="btn" onclick="openTaskForm()">+ Add Task</button></div>
+  <div class="grid stats">
+    <div class="card"><div class="stat-label">Study time today</div><div class="stat" id="sTime">0h 0m</div><div class="muted">Target <span id="targetText">8h</span></div></div>
+    <div class="card"><div class="stat-label">Target completion</div><div class="stat" id="sPercent">0%</div><div class="progress"><i id="targetBar" style="width:0%"></i></div></div>
+    <div class="card"><div class="stat-label">Tasks completed</div><div class="stat" id="sTasks">0/0</div><div class="muted" id="pendingText">No pending tasks</div></div>
+    <div class="card"><div class="stat-label">Study streak</div><div class="stat" id="sStreak">0 days 🔥</div><div class="muted">Keep going!</div></div>
+  </div>
+  <div class="grid two">
+    <div class="card"><div class="section-title"><h2>Today's study breakdown</h2><span class="muted">By subject</span></div><canvas id="subjectChart" height="210"></canvas></div>
+    <div class="card"><div class="section-title"><h2>Focus timer</h2><span class="pill" id="timerStatus">Ready</span></div><div class="timer"><div class="clock" id="clock">00:00:00</div><select id="subjectSelect"><option>Physics</option><option>Chemistry</option><option>Maths</option><option>Other</option></select><br><select id="topicSelect"><option>General Study</option><option>Revision</option><option>PYQs</option><option>Mock Test</option></select><br><button class="btn" id="timerBtn" onclick="toggleTimer()">Start studying</button> <button class="btn secondary" onclick="resetTimer()">Reset</button></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="section-title"><h2>Today's tasks</h2><button class="btn secondary" onclick="showPage('tasks')">View all</button></div><div id="dashTasks"></div></div>
+</section>
+
+<section id="timer" class="page hidden"><div class="top"><div><h1>Study Timer</h1><div class="date">Every focused session is automatically recorded.</div></div></div><div class="card"><div class="timer"><div class="clock" id="clock2">00:00:00</div><select id="subjectSelect2"><option>Physics</option><option>Chemistry</option><option>Maths</option><option>Other</option></select><select id="topicSelect2"><option>General Study</option><option>Revision</option><option>PYQs</option><option>Mock Test</option></select><p class="muted">Choose a subject and start your focused session.</p><button class="btn" id="timerBtn2" onclick="toggleTimer()">Start studying</button> <button class="btn secondary" onclick="resetTimer()">Reset</button></div></div></section>
+
+<section id="tasks" class="page hidden"><div class="top"><div><h1>Today's Tasks</h1><div class="date">Plan your day and tick work off as you finish.</div></div><button class="btn" onclick="openTaskForm()">+ Add Task</button></div><div class="grid two"><div class="card"><div class="section-title"><h2>Task list</h2><span class="muted" id="taskCount"></span></div><div id="taskList"></div></div><div class="card hidden" id="taskFormCard"><div class="section-title"><h2>Add task</h2><button class="danger" onclick="closeTaskForm()">✕</button></div><div class="form"><input id="taskTitle" placeholder="e.g. Physics Kinematics PYQs"><select id="taskSubject"><option>Physics</option><option>Chemistry</option><option>Maths</option><option>Other</option></select><input id="taskTime" type="time"><select id="taskPriority"><option value="high">High priority</option><option value="med">Medium priority</option><option value="low">Low priority</option></select><input id="taskEstimate" type="number" min="5" placeholder="Estimated minutes"><textarea id="taskNote" placeholder="Notes (optional)"></textarea><button class="btn" onclick="addTask()">Save task</button></div></div></div></section>
+
+<section id="schedule" class="page hidden"><div class="top"><div><h1>Daily Schedule</h1><div class="date">Create a simple time-blocked plan.</div></div></div><div class="card"><div class="form"><input id="schTitle" placeholder="Schedule item"><input id="schTime" type="time"><select id="schSubject"><option>Physics</option><option>Chemistry</option><option>Maths</option><option>Break</option><option>Other</option></select><button class="btn" onclick="addSchedule()">Add to schedule</button></div><div id="scheduleList" style="margin-top:18px"></div></div></section>
+
+<section id="jee" class="page hidden"><div class="top"><div><h1>JEE Progress</h1><div class="date">Track chapter status for Physics, Chemistry and Maths.</div></div></div><div class="grid report-grid" id="jeeCards"></div></section>
+
+<section id="reports" class="page hidden"><div class="top"><div><h1>Daily Report</h1><div class="date">Your study summary for today.</div></div><button class="btn secondary" onclick="window.print()">Print / Save PDF</button></div><div class="grid report-grid"><div class="card"><div class="stat-label">Total focused time</div><div class="stat" id="rTime">0h 0m</div></div><div class="card"><div class="stat-label">Tasks completed</div><div class="stat" id="rTasks">0/0</div></div><div class="card"><div class="stat-label">Target completion</div><div class="stat" id="rPercent">0%</div></div></div><div class="card" style="margin-top:16px"><h2>Subject report</h2><div id="subjectReport"></div></div></section>
+
+<section id="analytics" class="page hidden"><div class="top"><div><h1>Analytics</h1><div class="date">Understand your study consistency.</div></div></div><div class="card"><h2>Last 7 days</h2><canvas id="weekChart" height="110"></canvas></div><div class="card" style="margin-top:16px"><h2>Settings</h2><div class="form"><label>Daily study target (hours)<input id="dailyTarget" type="number" min="1" max="24" step=".5" onchange="saveTarget()"></label><button class="btn secondary" onclick="clearData()">Reset all study data</button></div></div></section>
+</main>
+</div>
+<div class="mobile-nav">
+<button class="active" data-page="dashboard">⌂<br>Home</button><button data-page="timer">⏱<br>Timer</button><button data-page="tasks">✓<br>Tasks</button><button data-page="jee">◆<br>JEE</button><button data-page="reports">▣<br>Report</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='studytrack_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{target:8,tasks:[],sessions:[],schedule:[],jee:{},days:{}};
+let running=JSON.parse(localStorage.getItem(KEY+'_running')||'null');
+let timerInterval;
+
+const chapters={Physics:['Units & Dimensions','Kinematics','Laws of Motion','Work, Energy & Power','Rotational Motion','Gravitation','Thermodynamics','Waves','Electrostatics','Current Electricity','Magnetism','Optics','Modern Physics'],Chemistry:['Some Basic Concepts','Atomic Structure','Chemical Bonding','Thermodynamics','Equilibrium','Redox Reactions','Solutions','Electrochemistry','Chemical Kinetics','Coordination Compounds','Organic Basics','Hydrocarbons','Biomolecules'],Maths:['Sets & Relations','Quadratic Equations','Sequence & Series','Trigonometry','Straight Lines','Circles','Limits & Continuity','Differentiation','Integration','Matrices & Determinants','Vectors','3D Geometry','Probability']};
+
+function save(){localStorage.setItem(KEY,JSON.stringify(data));}
+function key(){return new Date().toISOString().slice(0,10)}
+function fmt(sec){let h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function hm(sec){return `${Math.floor(sec/3600)}h ${Math.floor(sec%3600/60)}m`}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',1800)}
+function todaySeconds(){return data.sessions.filter(x=>x.date===key()).reduce((a,b)=>a+b.duration,0)+(running&&running.date===key()?Math.floor((Date.now()-running.start)/1000):0)}
+function tasksDone(){return data.tasks.filter(x=>x.date===key()&&x.done).length}
+function tasksTotal(){return data.tasks.filter(x=>x.date===key()).length}
+function render(){
+ document.getElementById('today').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ let sec=todaySeconds(), target=data.target*3600, pct=Math.min(100,Math.round(sec/target*100)), total=tasksTotal(),done=tasksDone();
+ document.getElementById('sTime').textContent=hm(sec);document.getElementById('sPercent').textContent=pct+'%';document.getElementById('targetBar').style.width=pct+'%';document.getElementById('targetText').textContent=data.target+'h';document.getElementById('sTasks').textContent=`${done}/${total}`;document.getElementById('pendingText').textContent=total-done?`${total-done} pending`:'All tasks complete 🎉';document.getElementById('sStreak').textContent=streak()+' days 🔥';
+ renderTasks();renderSchedule();renderJee();renderReport();renderCharts();renderTimer();
+}
+function renderTasks(){
+ let arr=data.tasks.filter(x=>x.date===key()).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+ document.getElementById('taskCount').textContent=`${arr.filter(x=>x.done).length}/${arr.length} completed`;
+ const html=arr.length?arr.map(x=>`<div class="task"><input type="checkbox" ${x.done?'checked':''} onchange="toggleTask('${x.id}')"><div class="task-main"><div class="task-title ${x.done?'done':''}">${esc(x.title)}</div><div class="muted">${x.subject}${x.time?' · '+x.time:''}${x.estimate?' · '+x.estimate+' min':''}</div></div><span class="pill ${x.priority}">${x.priority}</span><button class="danger" onclick="deleteTask('${x.id}')">×</button></div>`).join(''):'<div class="empty">No tasks yet. Add your first task.</div>';
+ document.getElementById('taskList').innerHTML=html;document.getElementById('dashTasks').innerHTML=arr.slice(0,5).map(x=>`<div class="task"><input type="checkbox" ${x.done?'checked':''} onchange="toggleTask('${x.id}')"><div class="task-main"><div class="task-title ${x.done?'done':''}">${esc(x.title)}</div><div class="muted">${x.subject}${x.time?' · '+x.time:''}</div></div><span class="pill ${x.priority}">${x.priority}</span></div>`).join('')||'<div class="empty">No tasks planned for today.</div>';
+}
+function openTaskForm(){document.getElementById('taskFormCard').classList.remove('hidden');showPage('tasks')}
+function closeTaskForm(){document.getElementById('taskFormCard').classList.add('hidden')}
+function addTask(){let title=document.getElementById('taskTitle').value.trim();if(!title)return toast('Enter a task name');data.tasks.push({id:Date.now().toString(),date:key(),title,subject:taskSubject.value,time:taskTime.value,priority:taskPriority.value,estimate:taskEstimate.value,note:taskNote.value,done:false});save();['taskTitle','taskTime','taskEstimate','taskNote'].forEach(id=>document.getElementById(id).value='');closeTaskForm();render();toast('Task added ✓')}
+function toggleTask(id){let x=data.tasks.find(x=>x.id===id);x.done=!x.done;save();render();toast(x.done?'Task completed 🎉':'Task reopened')}
+function deleteTask(id){data.tasks=data.tasks.filter(x=>x.id!==id);save();render()}
+function addSchedule(){let title=schTitle.value.trim();if(!title)return toast('Enter a schedule item');data.schedule.push({id:Date.now(),date:key(),title,time:schTime.value,subject:schSubject.value});save();schTitle.value='';renderSchedule();toast('Added to schedule')}
+function renderSchedule(){let a=data.schedule.filter(x=>x.date===key()).sort((a,b)=>a.time.localeCompare(b.time));scheduleList.innerHTML=a.length?a.map(x=>`<div class="task"><span class="pill">${x.time||'Anytime'}</span><div class="task-main"><b>${esc(x.title)}</b><div class="muted">${x.subject}</div></div><button class="danger" onclick="data.schedule=data.schedule.filter(y=>y.id!==${x.id});save();renderSchedule()">×</button></div>`).join(''):'<div class="empty">No scheduled blocks yet.</div>'}
+function toggleTimer(){if(running){stopTimer()}else{let subject=document.getElementById('subjectSelect').value,topic=document.getElementById('topicSelect').value;running={start:Date.now(),date:key(),subject,topic};localStorage.setItem(KEY+'_running',JSON.stringify(running));toast('Study session started 🚀')}render()}
+function stopTimer(){if(!running)return;let dur=Math.max(1,Math.floor((Date.now()-running.start)/1000));data.sessions.push({...running,duration:dur});running=null;localStorage.removeItem(KEY+'_running');save();toast('Session saved ✓');render()}
+function resetTimer(){if(running){if(!confirm('Reset current timer without saving?'))return;running=null;localStorage.removeItem(KEY+'_running')}render()}
+function renderTimer(){let sec=running?Math.floor((Date.now()-running.start)/1000):0;let c=fmt(sec);document.getElementById('clock').textContent=c;document.getElementById('clock2').textContent=c;document.getElementById('timerBtn').textContent=running?'Stop & save':'Start studying';document.getElementById('timerBtn2').textContent=running?'Stop & save':'Start studying';document.getElementById('timerStatus').textContent=running?'● Recording':'Ready'}
+function streak(){let s=0,d=new Date();while(true){let k=d.toISOString().slice(0,10);let has=data.sessions.some(x=>x.date===k&&x.duration>=900)||data.tasks.some(x=>x.date===k&&x.done);if(!has)break;s++;d.setDate(d.getDate()-1)}return s}
+function renderReport(){let sec=todaySeconds(),total=tasksTotal(),done=tasksDone(),pct=Math.min(100,Math.round(sec/(data.target*3600)*100));rTime.textContent=hm(sec);rTasks.textContent=`${done}/${total}`;rPercent.textContent=pct+'%';let subs=['Physics','Chemistry','Maths','Other'];subjectReport.innerHTML=subs.map(s=>{let n=data.sessions.filter(x=>x.date===key()&&x.subject===s).reduce((a,b)=>a+b.duration,0);return `<div class="subject"><div class="subject-row"><span>${s}</span><b>${hm(n)}</b></div><div class="progress"><i style="width:${Math.min(100,n/(data.target*3600/3)*100)}%"></i></div></div>`}).join('')}
+function renderJee(){jeeCards.innerHTML=['Physics','Chemistry','Maths'].map(sub=>`<div class="card"><div class="section-title"><h2>${sub}</h2><span class="pill">${chapters[sub].filter(c=>data.jee[sub+'|'+c]==='Completed').length}/${chapters[sub].length}</span></div>${chapters[sub].map(c=>`<div class="chapter"><span>${c}</span><select onchange="data.jee['${sub}|${c}']=this.value;save();renderJee()"><option ${!data.jee[sub+'|'+c]?'selected':''}>Not Started</option><option ${data.jee[sub+'|'+c]==='Learning'?'selected':''}>Learning</option><option ${data.jee[sub+'|'+c]==='Revision'?'selected':''}>Revision</option><option ${data.jee[sub+'|'+c]==='PYQ Done'?'selected':''}>PYQ Done</option><option ${data.jee[sub+'|'+c]==='Completed'?'selected':''}>Completed</option></select></div>`).join('')}</div>`).join('')}
+let subjectChart,weekChart;
+function renderCharts(){let subs=['Physics','Chemistry','Maths','Other'];let vals=subs.map(s=>data.sessions.filter(x=>x.date===key()&&x.subject===s).reduce((a,b)=>a+b.duration/3600,0));if(subjectChart)subjectChart.destroy();subjectChart=new Chart(document.getElementById('subjectChart'),{type:'doughnut',data:{labels:subs,datasets:[{data:vals}]},options:{plugins:{legend:{position:'bottom'}},cutout:'68%'}});let labels=[],vals2=[];for(let i=6;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);let k=d.toISOString().slice(0,10);labels.push(d.toLocaleDateString('en-IN',{weekday:'short'}));vals2.push(data.sessions.filter(x=>x.date===k).reduce((a,b)=>a+b.duration/3600,0))}if(weekChart)weekChart.destroy();weekChart=new Chart(document.getElementById('weekChart'),{type:'bar',data:{labels,datasets:[{label:'Study hours',data:vals2,borderRadius:7}]},options:{scales:{y:{beginAtZero:true}}}})}
+function saveTarget(){data.target=Number(dailyTarget.value)||8;save();render()}
+function clearData(){if(confirm('Delete all StudyTrack data?')){localStorage.removeItem(KEY);localStorage.removeItem(KEY+'_running');location.reload()}}
+function showPage(id){document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===id));if(id==='analytics')dailyTarget.value=data.target;render()}
+document.querySelectorAll('[data-page]').forEach(x=>x.onclick=()=>showPage(x.dataset.page));
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+setInterval(()=>{renderTimer();if(running){document.getElementById('sTime').textContent=hm(todaySeconds())}},1000);
+render();
+</script>
+</body>
+</html>
